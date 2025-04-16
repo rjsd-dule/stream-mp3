@@ -1,6 +1,6 @@
 module.exports = {
     apps: [{
-      name: "eternity-radio",
+      name: "mp3static_node",
       script: "radio-client.js",
       instances: 1,
       autorestart: true,

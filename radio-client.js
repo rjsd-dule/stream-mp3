@@ -1,38 +1,31 @@
-// radio-client.js
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const express = require('express');
 const path = require('path');
 
-// Configuration
 const config = {
-  port: 3000,  // Cambiado a puerto 3000
+  port: 3000, 
   streamUrl: "https://azura.eternityready.com/listen/eternity_ready_radio/radio.mp3",
   clientTitle: "Eternity Ready Radio Client",
   proxyEndpoint: "/stream-proxy"
 };
 
-// Create Express app and HTTP server
 const app = express();
 const server = http.createServer(app);
 
-// Middleware para conexiones persistentes
 app.use((req, res, next) => {
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('Keep-Alive', 'timeout=60');
   next();
 });
 
-// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Ruta principal modificada para /stream
 app.get('/stream', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Proxy transparente para el stream de radio
 app.get(config.proxyEndpoint, (req, res) => {
   const isHttps = config.streamUrl.startsWith('https');
   const requestLib = isHttps ? https : http;
@@ -45,7 +38,6 @@ app.get(config.proxyEndpoint, (req, res) => {
       'User-Agent': 'EternityReadyRadioProxy/1.0'
     }
   }, (forwardResponse) => {
-    // Reenviar todos los headers importantes
     const passthroughHeaders = [
       'content-type',
       'icy-metaint',
@@ -168,7 +160,6 @@ if (!fs.existsSync(path.join(__dirname, 'public'))) {
   fs.mkdirSync(path.join(__dirname, 'public'));
 }
 
-// HTML actualizado con la ruta correcta
 const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
@@ -282,7 +273,6 @@ const htmlContent = `
 
 fs.writeFileSync(path.join(__dirname, 'public', 'index.html'), htmlContent);
 
-// Iniciar servidor en puerto 3000
 server.listen(config.port, () => {
   console.log(`Servidor corriendo en http://localhost:${config.port}/stream`);
   console.log(`Stream disponible en: http://localhost:${config.port}${config.proxyEndpoint}`);
