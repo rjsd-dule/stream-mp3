@@ -7,10 +7,10 @@ const path = require('path');
 
 // Configuration
 const config = {
-  port: 3030,
+  port: 3000,  // Cambiado a puerto 3000
   streamUrl: "https://azura.eternityready.com/listen/eternity_ready_radio/radio.mp3",
   clientTitle: "Eternity Ready Radio Client",
-  proxyEndpoint: "/stream-proxy"  // Nueva configuración para el endpoint proxy
+  proxyEndpoint: "/stream-proxy"
 };
 
 // Create Express app and HTTP server
@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
+// Ruta principal modificada para /stream
 app.get('/stream', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -79,7 +79,7 @@ app.get(config.proxyEndpoint, (req, res) => {
   });
 });
 
-// Metadata endpoint (opcional, para mostrar en tu interfaz web)
+// Metadata endpoint
 const currentMetadata = {
   StreamTitle: '',
   artistName: '',
@@ -92,7 +92,7 @@ app.get('/api/metadata', (req, res) => {
   res.json(currentMetadata);
 });
 
-// Metadata parser (solo para mostrar en tu web, no afecta al stream)
+// Metadata parser
 function updateMetadata(icyHeaders, metadataString) {
   if (metadataString) {
     const streamTitleMatch = metadataString.match(/StreamTitle='([^']*)'/);
@@ -114,7 +114,7 @@ function updateMetadata(icyHeaders, metadataString) {
   }
 }
 
-// Monitor de metadatos (separado del proxy para no afectar el stream)
+// Monitor de metadatos
 function startMetadataMonitor() {
   console.log(`Iniciando monitor de metadatos: ${config.streamUrl}`);
   
@@ -146,7 +146,6 @@ function startMetadataMonitor() {
         offset += 1 + metaLength;
       }
       
-      // Limitar tamaño del buffer
       if (buffer.length > metaInt * 2) {
         buffer = buffer.slice(buffer.length - metaInt);
       }
@@ -169,7 +168,7 @@ if (!fs.existsSync(path.join(__dirname, 'public'))) {
   fs.mkdirSync(path.join(__dirname, 'public'));
 }
 
-// HTML con el reproductor que usa el proxy
+// HTML actualizado con la ruta correcta
 const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
@@ -178,11 +177,54 @@ const htmlContent = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${config.clientTitle}</title>
     <style>
-        /* Tus estilos existentes */
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f0f0f0; }
-        .player-container { background-color: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
-        audio { width: 100%; margin: 20px 0; }
-        /* Resto de tus estilos... */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .player-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .metadata-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        audio {
+            width: 100%;
+            margin: 20px 0;
+        }
+        .now-playing {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .artist {
+            font-weight: bold;
+            color: #444;
+        }
+        .title {
+            font-style: italic;
+            color: #666;
+        }
+        .program {
+            font-size: 0.9em;
+            color: #888;
+        }
+        .update-time {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -191,7 +233,7 @@ const htmlContent = `
     <div class="player-container">
         <h2>Live Stream</h2>
         <audio id="audio-player" controls autoplay>
-            <source src="${config.proxyEndpoint}" type="audio/mpeg">
+            <source src="/stream-proxy" type="audio/mpeg">
             Your browser does not support the audio element.
         </audio>
     </div>
@@ -240,9 +282,9 @@ const htmlContent = `
 
 fs.writeFileSync(path.join(__dirname, 'public', 'index.html'), htmlContent);
 
-// Iniciar servidor
+// Iniciar servidor en puerto 3000
 server.listen(config.port, () => {
-  console.log(`Servidor corriendo en http://localhost:${config.port}`);
-  console.log(`Proxy de stream disponible en: http://localhost:${config.port}${config.proxyEndpoint}`);
+  console.log(`Servidor corriendo en http://localhost:${config.port}/stream`);
+  console.log(`Stream disponible en: http://localhost:${config.port}${config.proxyEndpoint}`);
   startMetadataMonitor();
 });

@@ -6,11 +6,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eternity Ready Radio Client</title>
     <style>
-        /* Tus estilos existentes */
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f0f0f0; }
-        .player-container { background-color: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
-        audio { width: 100%; margin: 20px 0; }
-        /* Resto de tus estilos... */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .player-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .metadata-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        audio {
+            width: 100%;
+            margin: 20px 0;
+        }
+        .now-playing {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .artist {
+            font-weight: bold;
+            color: #444;
+        }
+        .title {
+            font-style: italic;
+            color: #666;
+        }
+        .program {
+            font-size: 0.9em;
+            color: #888;
+        }
+        .update-time {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -32,7 +75,7 @@
             <span class="title" id="title"></span>
         </div>
         <div class="program" id="program">Eternity Ready Radio</div>
-        <div class="update-time" id="update-time">Last updated: 12:12:43 AM</div>
+        <div class="update-time" id="update-time">Last updated: 12:35:27 AM</div>
     </div>
 
     <script>
