@@ -181,8 +181,7 @@ if (!fs.existsSync(path.join(__dirname, 'public'))) {
   fs.mkdirSync(path.join(__dirname, 'public'));
 }
 
-// ✅ LÍNEA CLAVE PARA INICIAR EL SERVIDOR Y EL MONITOR
 server.listen(config.port, () => {
-  console.log(`01 - Servidor corriendo en http://localhost:${config.port}`);
+  console.log(`Ok - Servidor corriendo en http://localhost:${config.port}`);
   startMetadataMonitor();
 });
