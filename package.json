@@ -4,9 +4,10 @@
     "description": "Client-side Node.js application for Eternity Ready Radio",
     "main": "radio-client.js",
     "scripts": {
-      "start": "node radio-client.js"
+        "start": "node radio-client.js"
     },
     "dependencies": {
-      "express": "^4.18.2"
+        "express": "^4.21.2",
+        "socket.io": "^4.8.1"
     }
-  }
+}
