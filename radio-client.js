@@ -20,9 +20,13 @@ const io = new Server(server, {
   }
 });
 
+
+app.use(express.json());  
+app.use(express.urlencoded({ extended: true })); 
+
 app.use((req, res, next) => {
   res.setHeader('Connection', 'keep-alive');
-  res.setHeader('Keep-Alive', 'timeout=60');
+  res.setHeader('Keep-Alive', 'timeout=7200');
   next();
 });
 
@@ -32,6 +36,27 @@ app.get('/stream-proxy', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.get('/update-url', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'update-stream-url.html'));
+});
+
+let currentStreamUrl = config.streamUrl;
+
+app.post('/api/update-stream-url', async (req, res) => {
+  try {
+    const { newStreamUrl } = req.body;
+    if (newStreamUrl && newStreamUrl !== currentStreamUrl) {
+      currentStreamUrl = newStreamUrl;
+      io.emit('stream-url-updated', newStreamUrl);
+      res.json({ message: 'URL del stream actualizada correctamente.' });
+    } else {
+      res.status(400).json({ message: 'URL del stream no ha cambiado o no es válida.' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al actualizar la URL del stream.' });
+  }
+});
 
 app.get(config.proxyEndpoint, (req, res) => {
   const isHttps = config.streamUrl.startsWith('https');
@@ -44,7 +69,7 @@ app.get(config.proxyEndpoint, (req, res) => {
       'Icy-MetaData': '1',
       'User-Agent': 'EternityReadyRadioProxy/1.0'
     },
-    timeout: 10000
+    timeout: 5000
   }, (forwardResponse) => {
     const passthroughHeaders = [
       'content-type',
@@ -82,7 +107,6 @@ app.get(config.proxyEndpoint, (req, res) => {
     forwardRequest.destroy();
   });
 });
-
 
 const currentMetadata = {
   StreamTitle: '',
@@ -142,7 +166,7 @@ function startMetadataMonitor() {
       'Icy-MetaData': '1',
       'User-Agent': 'EternityReadyRadioMetadataMonitor/1.0'
     },
-    timeout: 10000
+    timeout: 5000
   }, (response) => {
     retryCount = 0;
     const metaInt = parseInt(response.headers['icy-metaint'], 10) || 16000;
@@ -202,11 +226,9 @@ io.on('connection', (socket) => {
   });
 });
 
-
 if (!fs.existsSync(path.join(__dirname, 'public'))) {
   fs.mkdirSync(path.join(__dirname, 'public'));
 }
-
 
 server.listen(config.port, () => {
   console.log(`Servidor corriendo en: http://localhost:${config.port}`);
