@@ -20,7 +20,6 @@ const io = new Server(server, {
   }
 });
 
-// Middleware
 app.use((req, res, next) => {
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('Keep-Alive', 'timeout=60');
@@ -29,12 +28,11 @@ app.use((req, res, next) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Página de cliente
 app.get('/stream-proxy', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Proxy de stream
+
 app.get(config.proxyEndpoint, (req, res) => {
   const isHttps = config.streamUrl.startsWith('https');
   const requestLib = isHttps ? https : http;
@@ -85,7 +83,7 @@ app.get(config.proxyEndpoint, (req, res) => {
   });
 });
 
-// Metadatos actuales
+
 const currentMetadata = {
   StreamTitle: '',
   artistName: '',
@@ -130,7 +128,6 @@ function updateMetadata(icyHeaders, metadataString) {
   }
 }
 
-// Monitor de metadatos
 let retryCount = 0;
 const maxRetries = 10;
 
@@ -196,7 +193,6 @@ function startMetadataMonitor() {
   });
 }
 
-// Socket.io
 io.on('connection', (socket) => {
   console.log('Cliente conectado vía socket.io');
   socket.emit('metadata-update', currentMetadata);
