@@ -20,7 +20,6 @@ const io = new Server(server, {
   }
 });
 
-// Middleware
 app.use((req, res, next) => {
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('Keep-Alive', 'timeout=60');
@@ -29,24 +28,21 @@ app.use((req, res, next) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Página de cliente
 app.get('/stream-proxy', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Proxy de stream
 app.get(config.proxyEndpoint, (req, res) => {
   const isHttps = config.streamUrl.startsWith('https');
   const requestLib = isHttps ? https : http;
 
-  console.log(`[PROXY] Nueva conexión al stream: ${config.streamUrl}`);
+  console.log(`Nueva conexión proxy al stream: ${config.streamUrl}`);
 
   const forwardRequest = requestLib.get(config.streamUrl, {
     headers: {
       'Icy-MetaData': '1',
       'User-Agent': 'EternityReadyRadioProxy/1.0'
-    },
-    timeout: 10000
+    }
   }, (forwardResponse) => {
     const passthroughHeaders = [
       'content-type',
@@ -67,25 +63,19 @@ app.get(config.proxyEndpoint, (req, res) => {
     forwardResponse.pipe(res);
   });
 
-  forwardRequest.on('timeout', () => {
-    console.error(`[PROXY] Timeout al conectar con ${config.streamUrl}`);
-    forwardRequest.destroy();
-    if (!res.headersSent) res.status(504).send('Gateway Timeout');
-  });
-
   forwardRequest.on('error', (err) => {
-    console.error(`[PROXY] Error: ${err.code} - ${err.message}`);
-    if (!res.headersSent) res.status(502).send('Proxy error');
+    console.error('Error en proxy:', err);
+    if (!res.headersSent) {
+      res.status(502).send('Proxy error');
+    }
     res.end();
   });
 
   req.on('close', () => {
-    console.log('[PROXY] Cliente cerró la conexión');
     forwardRequest.destroy();
   });
 });
 
-// Metadatos actuales
 const currentMetadata = {
   StreamTitle: '',
   artistName: '',
@@ -130,12 +120,8 @@ function updateMetadata(icyHeaders, metadataString) {
   }
 }
 
-// Monitor de metadatos
-let retryCount = 0;
-const maxRetries = 10;
-
 function startMetadataMonitor() {
-  console.log(`[META] Conectando para leer metadatos de: ${config.streamUrl}`);
+  console.log(`Iniciando monitor de metadatos: ${config.streamUrl}`);
 
   const isHttps = config.streamUrl.startsWith('https');
   const requestLib = isHttps ? https : http;
@@ -144,10 +130,8 @@ function startMetadataMonitor() {
     headers: {
       'Icy-MetaData': '1',
       'User-Agent': 'EternityReadyRadioMetadataMonitor/1.0'
-    },
-    timeout: 10000
+    }
   }, (response) => {
-    retryCount = 0;
     const metaInt = parseInt(response.headers['icy-metaint'], 10) || 16000;
     let buffer = Buffer.alloc(0);
 
@@ -164,7 +148,6 @@ function startMetadataMonitor() {
           const metadataString = metadataBuffer.toString('utf8').replace(/\0/g, '');
           updateMetadata(response.headers, metadataString);
         }
-
         offset += 1 + metaLength;
       }
 
@@ -174,29 +157,17 @@ function startMetadataMonitor() {
     });
 
     response.on('end', () => {
-      console.warn('[META] Conexión cerrada. Reintentando...');
+      console.log('Conexión de metadatos cerrada, reconectando...');
       setTimeout(startMetadataMonitor, 5000);
     });
   });
 
   request.on('error', (err) => {
-    console.error(`[META] Error: ${err.code} - ${err.message}`);
-    retryCount++;
-    if (retryCount > maxRetries) {
-      console.error(`[META] Máximo de reintentos alcanzado (${maxRetries}). Deteniendo monitor.`);
-    } else {
-      setTimeout(startMetadataMonitor, 5000);
-    }
-  });
-
-  request.on('timeout', () => {
-    console.error('[META] Timeout al conectar para metadatos');
-    request.destroy();
+    console.error('Error en monitor de metadatos:', err);
     setTimeout(startMetadataMonitor, 5000);
   });
 }
 
-// Socket.io
 io.on('connection', (socket) => {
   console.log('Cliente conectado vía socket.io');
   socket.emit('metadata-update', currentMetadata);
@@ -206,13 +177,11 @@ io.on('connection', (socket) => {
   });
 });
 
-
 if (!fs.existsSync(path.join(__dirname, 'public'))) {
   fs.mkdirSync(path.join(__dirname, 'public'));
 }
 
-
 server.listen(config.port, () => {
-  console.log(`Servidor corriendo en: http://localhost:${config.port}`);
+  console.log(`Ok - Servidor corriendo en http://localhost:${config.port}`);
   startMetadataMonitor();
 });
