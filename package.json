@@ -2,9 +2,9 @@
     "name": "eternity-ready-radio-client",
     "version": "1.0.0",
     "description": "Client-side Node.js application for Eternity Ready Radio",
-    "main": "radio-client.js",
+    "main": "app.js",
     "scripts": {
-        "start": "node radio-client.js"
+        "start": "node app.js"
     },
     "dependencies": {
         "express": "^4.21.2",

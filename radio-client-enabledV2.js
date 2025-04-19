@@ -4,13 +4,7 @@ const https = require('https');
 const express = require('express');
 const path = require('path');
 const WebSocket = require('ws'); // Cambiamos Socket.IO por ws
-
-const config = {
-  port: 3000,
-  streamUrl: "https://azura.eternityready.com/listen/eternity_ready_radio/radio.mp3",
-  clientTitle: "Eternity Ready Radio Client",
-  proxyEndpoint: "/stream"
-};
+const config = require('./config'); 
 
 const app = express();
 const server = http.createServer(app);

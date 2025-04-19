@@ -1,7 +1,7 @@
 module.exports = {
     apps: [{
       name: "mp3static_node",
-      script: "radio-client.js",
+      script: "app.js",
       instances: 1,
       autorestart: true,
       watch: false,
