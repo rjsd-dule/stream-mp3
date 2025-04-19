@@ -1,7 +1,6 @@
 const WebSocket = require('ws');
 const config = require('../config');
 
-// Mueve currentMetadata al inicio
 const currentMetadata = {
   StreamTitle: '',
   artistName: '',
@@ -10,7 +9,6 @@ const currentMetadata = {
   lastUpdated: Date.now()
 };
 
-// Implementación de broadcast
 function broadcast(data) {
   const message = JSON.stringify(data);
   global.wss.clients.forEach(client => {
@@ -20,7 +18,7 @@ function broadcast(data) {
   });
 }
 
-// Implementación de updateMetadata
+
 function updateMetadata(icyHeaders, metadataString) {
   let updated = false;
 
@@ -53,14 +51,12 @@ function updateMetadata(icyHeaders, metadataString) {
   }
 }
 
-// Exporta todo primero
 module.exports = {
   currentMetadata,
   broadcast,
   updateMetadata
 };
 
-// Luego importa y asigna el monitor
 const startMetadataMonitor = require('./metadataMonitor');
 module.exports = {
   currentMetadata,

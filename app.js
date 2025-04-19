@@ -21,7 +21,6 @@ app.use((req, res, next) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Importación corregida
 app.use('/api', require('./routes/apiRoutes'));
 app.use('/', require('./routes/webRoutes'));
 app.use('/', require('./routes/proxyRoutes'));
