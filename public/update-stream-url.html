@@ -15,16 +15,22 @@
       align-items: center;
       height: 100vh;
       background-color: #f4f4f9;
+      background-image: url('https://eternityreadyradio.com/api/public/stations/thumbnail/RRR_thumbnail.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
     }
 
     .container {
-      background-color: #fff;
+      background-color: rgba(255, 255, 255, 0.9);
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       width: 100%;
       max-width: 400px;
       padding: 20px;
       box-sizing: border-box;
+      backdrop-filter: blur(2px);
     }
 
     h1 {
@@ -50,6 +56,7 @@
       font-size: 16px;
       color: #333;
       box-sizing: border-box;
+      background-color: rgba(255, 255, 255, 0.8);
     }
 
     button {
@@ -74,15 +81,16 @@
       margin-top: 20px;
       border-radius: 4px;
       font-size: 14px;
+      background-color: rgba(255, 255, 255, 0.9);
     }
 
     .alert.success {
-      background-color: #d4edda;
+      border-left: 4px solid #28a745;
       color: #155724;
     }
 
     .alert.error {
-      background-color: #f8d7da;
+      border-left: 4px solid #dc3545;
       color: #721c24;
     }
   </style>

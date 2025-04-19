@@ -3,7 +3,7 @@ const http = require('http');
 const https = require('https');
 const express = require('express');
 const path = require('path');
-const { Server } = require('socket.io');
+const WebSocket = require('ws'); // Cambiamos Socket.IO por ws
 
 const config = {
   port: 3000,
@@ -14,12 +14,7 @@ const config = {
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*"
-  }
-});
-
+const wss = new WebSocket.Server({ server });
 
 app.use(express.json());  
 app.use(express.urlencoded({ extended: true })); 
@@ -47,7 +42,8 @@ app.post('/api/update-stream-url', async (req, res) => {
     const { newStreamUrl } = req.body;
     if (newStreamUrl && newStreamUrl !== currentStreamUrl) {
       currentStreamUrl = newStreamUrl;
-      io.emit('stream-url-updated', newStreamUrl);
+      
+      broadcast({ type: 'stream-url-updated', url: newStreamUrl });
       res.json({ message: 'URL del stream actualizada correctamente.' });
     } else {
       res.status(400).json({ message: 'URL del stream no ha cambiado o no es válida.' });
@@ -57,6 +53,15 @@ app.post('/api/update-stream-url', async (req, res) => {
     res.status(500).json({ message: 'Error al actualizar la URL del stream.' });
   }
 });
+
+function broadcast(data) {
+  const message = JSON.stringify(data);
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+}
 
 app.get(config.proxyEndpoint, (req, res) => {
   const isHttps = config.streamUrl.startsWith('https');
@@ -139,7 +144,7 @@ function updateMetadata(icyHeaders, metadataString) {
 
       if (newMetadata.StreamTitle !== currentMetadata.StreamTitle) {
         Object.assign(currentMetadata, newMetadata);
-        io.emit("metadata-update", currentMetadata);
+        broadcast({ type: 'metadata-update', data: currentMetadata });
         updated = true;
       }
     }
@@ -148,7 +153,7 @@ function updateMetadata(icyHeaders, metadataString) {
   if (!updated && icyHeaders['icy-name'] && icyHeaders['icy-name'] !== currentMetadata.program) {
     currentMetadata.program = icyHeaders['icy-name'];
     currentMetadata.lastUpdated = Date.now();
-    io.emit("metadata-update", currentMetadata);
+    broadcast({ type: 'metadata-update', data: currentMetadata });
   }
 }
 
@@ -217,12 +222,17 @@ function startMetadataMonitor() {
   });
 }
 
-io.on('connection', (socket) => {
-  console.log('Cliente conectado vía socket.io');
-  socket.emit('metadata-update', currentMetadata);
 
-  socket.on('disconnect', () => {
-    console.log('Cliente desconectado');
+wss.on('connection', (ws) => {
+  console.log('Nuevo cliente WebSocket conectado');
+  
+  ws.send(JSON.stringify({
+    type: 'metadata-update',
+    data: currentMetadata
+  }));
+
+  ws.on('close', () => {
+    console.log('Cliente WebSocket desconectado');
   });
 });
 
