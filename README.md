@@ -24,14 +24,7 @@ Before running the application, make sure you have the following installed:
 
 Follow these steps to install and configure the project locally:
 
-1. **Clone the repository**:
-
-   ```bash
-   git clone <repository_url>
-   cd eternity-ready-radio-client
-   ```
-
-2. **Install dependencies**:
+1. **Install dependencies**:
 
    ```bash
    npm install
