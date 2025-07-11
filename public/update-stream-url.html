@@ -113,7 +113,7 @@
         showAlert('success', data.message);
         socket.emit('stream-url-updated', newStreamUrl);
       })
-      .catch(error => showAlert('error', 'Error al actualizar la URL del stream'));
+      .catch(error => showAlert('error', 'Error updating the stream URL'));
     }
 
     function showAlert(type, message) {
@@ -125,7 +125,7 @@
     }
 
     socket.on('stream-url-updated', (newStreamUrl) => {
-      showAlert('success', 'La URL del stream ha sido actualizada a: ' + newStreamUrl);
+      showAlert('success', 'The stream URL has been updated to: ' + newStreamUrl);
     });
   </script>
 </head>
@@ -133,7 +133,7 @@
   <div class="container">
     <h1>Actualizar URL del Stream</h1>
     <label for="streamUrl">New Stream URL:</label>
-    <input type="text" id="streamUrl" placeholder="Ingresa la nueva URL del stream" required>
+    <input type="text" id="streamUrl" placeholder="Enter the new stream URL" required>
     <button onclick="updateStreamUrl()">Update URL</button>
     <div class="alert"></div>
   </div>
