@@ -5,13 +5,19 @@ const http = require('http');
 const config = require('../config');
 const { broadcast } = require('../services/metadataService');
 
+const { getCurrentStreamUrl } = require('../controllers/apiController');
+
 router.get(config.proxyEndpoint, (req, res) => {
-  const isHttps = config.streamUrl.startsWith('https');
+
+  const currentUrl = getCurrentStreamUrl() || config.streamUrl;
+
+  //const isHttps = config.streamUrl.startsWith('https');
+  const isHttps = currentUrl.startsWith('https');
   const requestLib = isHttps ? https : http;
 
-  console.log(`[PROXY] Nueva conexión al stream: ${config.streamUrl}`);
+  console.log(`[PROXY] Nueva conexión al stream: ${currentUrl}`);
 
-  const forwardRequest = requestLib.get(config.streamUrl, {
+  const forwardRequest = requestLib.get(currentUrl, {
     headers: {
       'Icy-MetaData': '1',
       'User-Agent': 'EternityReadyRadioProxy/1.0'

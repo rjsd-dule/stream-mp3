@@ -1,141 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Actualizar URL del Stream</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css">
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #f4f4f9;
-      background-image: url('https://eternityreadyradio.com/api/public/stations/thumbnail/RRR_thumbnail.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-    }
-
-    .container {
-      background-color: rgba(255, 255, 255, 0.9);
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
-      box-sizing: border-box;
-      backdrop-filter: blur(2px);
-    }
-
-    h1 {
-      text-align: center;
-      color: #333;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    label {
-      font-size: 14px;
-      color: #333;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 16px;
-      color: #333;
-      box-sizing: border-box;
-      background-color: rgba(255, 255, 255, 0.8);
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #007bff;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .alert {
-      display: none;
-      padding: 10px;
-      margin-top: 20px;
-      border-radius: 4px;
-      font-size: 14px;
-      background-color: rgba(255, 255, 255, 0.9);
-    }
-
-    .alert.success {
-      border-left: 4px solid #28a745;
-      color: #155724;
-    }
-
-    .alert.error {
-      border-left: 4px solid #dc3545;
-      color: #721c24;
-    }
+    
   </style>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io(); 
-
-    function updateStreamUrl() {
-      const newStreamUrl = document.getElementById('streamUrl').value;
-
-      fetch('/api/update-stream-url', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ newStreamUrl })
-      })
-      .then(response => response.json())
-      .then(data => {
-        showAlert('success', data.message);
-        socket.emit('stream-url-updated', newStreamUrl);
-      })
-      .catch(error => showAlert('error', 'Error updating the stream URL'));
-    }
-
-    function showAlert(type, message) {
-      const alert = document.querySelector('.alert');
-      alert.classList.remove('success', 'error');
-      alert.classList.add(type);
-      alert.textContent = message;
-      alert.style.display = 'block';
-    }
-
-    socket.on('stream-url-updated', (newStreamUrl) => {
-      showAlert('success', 'The stream URL has been updated to: ' + newStreamUrl);
-    });
-  </script>
 </head>
 <body>
   <div class="container">
     <h1>Update Stream URL</h1>
     <label for="streamUrl">New Stream URL:</label>
-    <input type="text" id="streamUrl" placeholder="Enter the new stream URL" required>
+    <input type="text" id="streamUrl" placeholder="Enter the new stream URL" required />
     <button onclick="updateStreamUrl()">Update URL</button>
     <div class="alert"></div>
   </div>
+
+  <!-- CDN de respaldo para Socket.IO -->
+  <script src="/socket.io/socket.io.js" onerror="loadSocketIOFallback()"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" id="socketio-fallback" style="display:none;"></script>
+  <script src="/js/scripts.js"></script>
 </body>
 </html>
